@@ -61,3 +61,9 @@
 最新の表示設定：英数字はHelvetica優先。地図は元版と同じ1000msごとの濃淡切り替え（背景0.9/0.2、濃い時の光8px、背景変化0.3秒、倍率1.15）。色は淡い赤に調整し、発車3分以内の行の赤も薄くしています。
 
 地図は濃淡切り替えから、前のゆっくり光が広がる効果（1.8秒の往復）に戻しました。下車停留所は左カラムの右端に配置し、会場名と上下の中心を揃えています。
+
+## GitHub Pages
+
+公開URL: https://reigreen016.github.io/busnaviforfoss4g/
+
+公開元は `main` ブランチの `/docs` フォルダです。更新時はルートのソースを編集し、`python3 scripts/prepare_pages.py` で公開ファイルに反映してからコミット・pushしてください。GitHub Pagesが自動で再公開します。GTFSを更新した場合も、build_data.pyの後にprepare_pages.pyを実行してください。
