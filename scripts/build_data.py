@@ -9,6 +9,7 @@ VENUES = [
  dict(id='icebreaker',name='アイスブレーカー',venue='ひろしまゲートパーク',en='Icebreaker',stops=['広島バスセンター','紙屋町'],dates=['2026-09-01'],note='広島バスセンター・紙屋町のいずれかで下車し、会場へ徒歩でお向かいください。'),
  dict(id='sprint',name='コミュニティスプリント',venue='アステールプラザ',en='Community sprint',stops=['加古町'],dates=['2026-09-04'],note='加古町で下車し、会場へ徒歩でお向かいください。')]
 
+
 def seconds(t):
  h,m,s=map(int,t.split(':')); return h*3600+m*60+s
 
@@ -31,15 +32,26 @@ def build(source):
     for origin in tt:
      stop=stops[origin['stop_id']]
      if stop['stop_name'] not in {'広島駅'} or origin.get('pickup_type')=='1': continue
-     dests={}
+     dests={}; evidence={}
      for arrival in tt:
       name=stops[arrival['stop_id']]['stop_name']
       if name in targets and int(arrival['stop_sequence'])>int(origin['stop_sequence']) and arrival.get('drop_off_type')!='1' and arrival['arrival_time']:
-       dests.setdefault(name,seconds(arrival['arrival_time']))
+       if name not in dests:
+        dests[name]=seconds(arrival['arrival_time']); evidence[name]=dict(stopId=arrival['stop_id'],sequence=int(arrival['stop_sequence']),dropOff=arrival.get('drop_off_type',''))
      if not dests or not origin['departure_time']: continue
      route=routes[t['route_id']]
-     out['trips'].append(dict(feed=idx,id=t['trip_id'],service=t['service_id'],departure=seconds(origin['departure_time']),origin=stop['stop_name'],platform=stop.get('platform_code',''),stopId=origin['stop_id'],route=route['route_short_name'] or route['route_long_name'],routeName=route['route_long_name'],agency=agencies.get(route['agency_id'],''),headsign=origin.get('stop_headsign') or t['trip_headsign'],destinations=dests));count+=1
+     out['trips'].append(dict(feed=idx,id=t['trip_id'],service=t['service_id'],departure=seconds(origin['departure_time']),origin=stop['stop_name'],platform=stop.get('platform_code',''),stopId=origin['stop_id'],route=route['route_short_name'] or route['route_long_name'],routeName=route['route_long_name'],agency=agencies.get(route['agency_id'],''),headsign=origin.get('stop_headsign') or t['trip_headsign'],destinations=dests,originSequence=int(origin['stop_sequence']),pickup=origin.get('pickup_type',''),evidence=evidence));count+=1
    print(path.name,count)
+ # Keep calendar/translation records needed by the published departures only.
+ for idx,feed in enumerate(out['feeds']):
+  selected=[t for t in out['trips'] if t['feed']==idx]
+  services={t['service'] for t in selected}
+  names=targets|{'広島駅'}|set(feed['agencies'])
+  for t in selected:
+   names.update([t['route'],t['routeName'],t['headsign'],t['agency']])
+  feed['calendar']=[r for r in feed['calendar'] if r['service_id'] in services]
+  feed['exceptions']=[r for r in feed['exceptions'] if r['service_id'] in services]
+  feed['translations']={lang:{name:value for name,value in values.items() if name in names} for lang,values in feed['translations'].items()}
  return out
 
 if __name__=='__main__':

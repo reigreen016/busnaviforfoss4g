@@ -1,1 +1,1 @@
-{"name":"busnaviforfoss4g","private":true,"type":"module","scripts":{"start":"python3 -m http.server 8000 --bind 127.0.0.1","test":"node --test scripts/schedule.test.js"}}
+{"name":"busnaviforfoss4g","private":true,"type":"module","scripts":{"start":"python3 -m http.server 8000 --bind 127.0.0.1","test":"node --test scripts/*.test.js"}}
