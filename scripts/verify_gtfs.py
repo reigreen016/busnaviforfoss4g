@@ -26,6 +26,8 @@ for i,feed in enumerate(data['feeds']):
    assert t['departure']==sum(int(v)*u for v,u in zip(origin['departure_time'].split(':'),[3600,60,1]))
    for name,ev in t['evidence'].items():
     dest=times[t['id']][ev['sequence']]
+    point=feed['stopLocations'][dest['stop_id']]
+    assert point['lat']==float(stops[dest['stop_id']]['stop_lat']) and point['lon']==float(stops[dest['stop_id']]['stop_lon'])
     assert ev['sequence']>t['originSequence']
     assert stops[dest['stop_id']]['stop_name']==name
     assert name in {stop for v in data['venues'] for stop in v['stops']} and dest.get('drop_off_type')!='1'

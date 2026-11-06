@@ -25,7 +25,7 @@ def build(source):
    times=defaultdict(list)
    for r in read('stop_times.txt'):
     if stops[r['stop_id']]['stop_name'] in targets|{'広島駅'}: times[r['trip_id']].append(r)
-   out['feeds'].append(dict(file=path.name,info=read('feed_info.txt'),calendar=read('calendar.txt'),exceptions=read('calendar_dates.txt'),agencies=list(agencies.values()),translations={lang:{r['trans_id']:r['translation'] for r in read('translations.txt') if r.get('lang')==lang and r.get('translation')} for lang in ['en','ko','zh-cn','zh-tw']}))
+   out['feeds'].append(dict(file=path.name,info=read('feed_info.txt'),calendar=read('calendar.txt'),exceptions=read('calendar_dates.txt'),agencies=list(agencies.values()),stopLocations={sid:dict(lat=float(row['stop_lat']),lon=float(row['stop_lon'])) for sid,row in stops.items() if row['stop_name'] in targets},translations={lang:{r['trans_id']:r['translation'] for r in read('translations.txt') if r.get('lang')==lang and r.get('translation')} for lang in ['en','ko','zh-cn','zh-tw']}))
    count=0
    for t in read('trips.txt'):
     tt=sorted(times[t['trip_id']],key=lambda r:int(r['stop_sequence']))
